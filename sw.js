@@ -1,5 +1,5 @@
-// CardioBP PWA Service Worker
-const CACHE_NAME = 'cardiobp-v4';
+// CardioBP PWA Service Worker (Network-First for HTML/Assets, Direct Pass-Through for API)
+const CACHE_NAME = 'cardiobp-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -25,10 +25,21 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.url.includes('intervals.icu')) {
-    return; // Pass API calls through directly
+  const req = e.request;
+  if (req.method !== 'GET' || req.url.includes('intervals.icu')) {
+    return;
   }
+
+  // Network-first so pushed revisions update immediately when online, with offline cache fallback
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request).catch(() => caches.match('./index.html')))
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
   );
 });

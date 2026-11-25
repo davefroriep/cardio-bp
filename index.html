@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -10,16 +10,14 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>CardioBP - Blood Pressure & Telemetry</title>
+  <title>CardioBP — Blood Pressure &amp; Telemetry</title>
   <style>
     :root {
       color-scheme: dark;
       --bg: #0b0f19;
       --card-bg: #151e2e;
       --card-border: #223049;
+      --surface: #0b111e;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --primary: #38bdf8;
@@ -49,19 +47,53 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding-bottom: 58px;
+      padding-bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* JS-Disabled Guard Banner (hidden immediately by first inline script) */
+    .js-guard {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(239, 68, 68, 0.14));
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .js-guard h2 {
+      font-size: 0.95rem;
+      color: #fde68a;
+      margin-bottom: 6px;
+    }
+    .js-guard p {
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+    .js-guard a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: var(--primary);
+      color: #041019;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+      padding: 11px 14px;
+      border-radius: 10px;
     }
 
     /* Top Bar */
     header {
-      background: rgba(21, 30, 46, 0.85);
+      background: rgba(21, 30, 46, 0.9);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--card-border);
-      padding: 8px 14px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -70,63 +102,57 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 700;
-      font-size: 1.15rem;
+      font-size: 1.08rem;
       letter-spacing: -0.02em;
+      min-width: 0;
     }
 
     .brand-icon {
       width: 28px;
       height: 28px;
+      flex-shrink: 0;
       background: linear-gradient(135deg, #ef4444, #f43f5e);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     .rev-badge {
       font-size: 0.65rem;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.14);
       color: var(--primary);
       border: 1px solid rgba(56, 189, 248, 0.3);
       padding: 2px 7px;
       border-radius: 10px;
       font-weight: 700;
-      letter-spacing: 0.05em;
-      margin-left: 6px;
-    }
-
-    .btn-now-pill {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--card-border);
-      color: var(--primary);
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .btn-now-pill:active {
-      background: var(--primary);
-      color: #0b0f19;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
     }
 
     .sync-status {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 10px;
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .sync-status:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .sync-dot {
@@ -135,11 +161,17 @@
       border-radius: 50%;
       background: var(--success);
       box-shadow: 0 0 8px var(--success);
+      flex-shrink: 0;
     }
 
-    .sync-dot.offline {
+    .sync-dot.warn {
       background: var(--warning);
       box-shadow: 0 0 8px var(--warning);
+    }
+
+    .sync-dot.error {
+      background: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
     }
 
     /* Main Container */
@@ -148,12 +180,12 @@
       width: 100%;
       max-width: 600px;
       margin: 0 auto;
-      padding: 8px 12px;
+      padding: 10px 12px;
     }
 
     .tab-content {
       display: none;
-      animation: fadeIn 0.2s ease-in-out;
+      animation: fadeIn 0.18s ease-out;
     }
 
     .tab-content.active {
@@ -165,26 +197,88 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Setup Banner */
+    .setup-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.78rem;
+      color: #fde68a;
+      line-height: 1.35;
+    }
+    .setup-banner.show {
+      display: flex;
+    }
+    .setup-banner button {
+      background: rgba(245, 158, 11, 0.24);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+      color: #fef3c7;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     /* Cards */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 12px 14px;
-      margin-bottom: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .card-title {
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.82rem;
+      font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
+    }
+
+    .notice-pill {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text-muted);
+    }
+    .notice-pill.custom {
+      color: var(--warning);
+    }
+
+    .btn-now-pill {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, transform 0.1s;
+    }
+
+    .btn-now-pill:active,
+    .btn-now-pill.flash {
+      background: var(--primary);
+      color: #041019;
+      transform: scale(0.96);
     }
 
     /* Input Grid */
@@ -192,7 +286,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .field-group {
@@ -201,38 +295,49 @@
       gap: 4px;
     }
 
+    .field-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 22px;
+    }
+
     .field-label {
       font-size: 0.75rem;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     input, select, textarea {
-      background: #0b111e;
+      background: var(--surface);
       border: 1px solid var(--card-border);
       border-radius: 8px;
       color: var(--text-main);
-      padding: 8px 10px;
+      padding: 9px 10px;
       font-size: 0.95rem;
       outline: none;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
       width: 100%;
     }
 
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
     }
 
-    /* Clean, rock-solid date and time inputs across Android Chrome, iOS Safari & Desktop */
+    input.flash-field {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.32) !important;
+    }
+
     input[type="date"], input[type="time"] {
-      color-scheme: dark !important;
-      color: #f8fafc !important;
-      background-color: #0b111e !important;
-      min-height: 42px;
-      line-height: 42px;
-      font-size: 0.95rem;
+      color-scheme: dark;
+      color: #f8fafc;
+      background-color: var(--surface);
+      min-height: 44px;
+      font-size: 0.94rem;
       font-weight: 600;
-      padding: 6px 12px;
+      padding: 6px 10px;
       border: 1px solid var(--card-border);
       border-radius: 8px;
     }
@@ -240,15 +345,39 @@
     input[type="date"]::-webkit-date-and-time-value,
     input[type="time"]::-webkit-date-and-time-value {
       text-align: left;
-      min-height: 1.4em;
-      color: #f8fafc !important;
+      color: #f8fafc;
     }
 
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-calendar-picker-indicator {
       filter: invert(0.85);
       cursor: pointer;
-      padding-left: 6px;
+    }
+
+    .readable-stamp {
+      font-size: 0.8rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Inline Form Error */
+    .form-error {
+      display: none;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .form-error.show {
+      display: block;
     }
 
     /* Primary BP Keypad Targets */
@@ -256,27 +385,26 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .bp-input-wrapper {
-      background: #0b111e;
+      background: var(--surface);
       border: 2px solid var(--card-border);
       border-radius: 12px;
-      padding: 8px 6px;
+      padding: 10px 6px;
       text-align: center;
-      transition: all 0.2s ease;
-      position: relative;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .bp-input-wrapper:focus-within {
       border-color: var(--primary);
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.18);
     }
 
     .bp-input-label {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -286,14 +414,26 @@
     .bp-input-wrapper input {
       background: transparent;
       border: none;
-      font-size: 2.2rem;
+      box-shadow: none;
+      font-size: 2.25rem;
       font-weight: 800;
       text-align: center;
       color: #ffffff;
       padding: 0;
       width: 100%;
-      height: auto;
       letter-spacing: -0.02em;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .bp-input-wrapper input:focus {
+      box-shadow: none;
     }
 
     .bp-unit {
@@ -310,45 +450,50 @@
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 6px 10px;
-      margin-bottom: 8px;
+      padding: 7px 10px;
+      margin-bottom: 10px;
     }
 
     .pulse-row .field-label {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
     }
 
     .pulse-row input {
-      width: 75px;
+      width: 82px;
       text-align: center;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 700;
-      padding: 4px;
-      min-height: auto;
+      padding: 5px;
     }
 
     /* Stage Badge Live Preview */
     .live-preview {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.025);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 8px 10px;
-      margin-bottom: 8px;
-      display: flex;
+      margin-bottom: 10px;
+      display: none;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .live-preview.show {
+      display: flex;
     }
 
     .stage-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: 20px;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -359,27 +504,28 @@
     .stage-badge.stage1 { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
     .stage-badge.stage2 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
     .stage-badge.crisis { background: rgba(185, 28, 28, 0.3); color: #fca5a5; border: 1px solid #ef4444; }
+    .stage-badge.invalid { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
 
     .clinical-metrics {
       display: flex;
-      gap: 14px;
-      font-size: 0.8rem;
+      gap: 12px;
+      font-size: 0.78rem;
       color: var(--text-muted);
     }
 
     .clinical-metrics span strong {
       color: var(--text-main);
-      font-size: 0.9rem;
+      font-size: 0.86rem;
     }
 
-    /* Submit Button */
+    /* Buttons */
     .btn {
       width: 100%;
       background: var(--primary);
       color: #041019;
       font-weight: 700;
-      font-size: 1rem;
-      padding: 12px;
+      font-size: 0.98rem;
+      padding: 13px 14px;
       border-radius: 10px;
       border: none;
       cursor: pointer;
@@ -387,8 +533,8 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.15s ease;
-      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+      transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.28);
     }
 
     .btn:active {
@@ -396,74 +542,198 @@
       background: var(--primary-hover);
     }
 
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-secondary {
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-main);
+      border: 1px solid var(--card-border);
       box-shadow: none;
-      font-size: 0.95rem;
-      padding: 12px;
+      font-size: 0.9rem;
+      padding: 11px 12px;
     }
 
     .btn-secondary:active {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.14);
     }
 
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      box-shadow: none;
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .input-with-btn {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .input-with-btn input {
+      flex: 1;
+    }
+
+    .btn-inline {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-row label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .toggle-row small {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .toggle-row input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .status-box {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .status-box.ok {
+      display: block;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+    .status-box.err {
+      display: block;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .status-box.info {
+      display: block;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #bae6fd;
     }
 
     /* History List */
     .history-card {
-      background: var(--card-bg);
+      background: var(--surface);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
+      padding: 12px 13px;
+      margin-bottom: 9px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: background 0.15s;
-    }
-
-    .history-card:hover {
-      background: #192437;
+      gap: 10px;
     }
 
     .history-main {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
+      min-width: 0;
     }
 
     .history-reading {
-      font-size: 1.35rem;
+      font-size: 1.28rem;
       font-weight: 800;
       letter-spacing: -0.01em;
       display: flex;
       align-items: baseline;
+      flex-wrap: wrap;
       gap: 6px;
     }
 
     .history-pulse {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #f43f5e;
       font-weight: 600;
     }
 
     .history-meta {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.35;
+    }
+
+    .history-note {
+      font-size: 0.76rem;
+      color: #e2e8f0;
+      font-style: italic;
+      word-break: break-word;
+    }
+
+    .sync-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .sync-chip.synced {
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .sync-chip.pending {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.4);
+      cursor: pointer;
     }
 
     .history-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .icon-btn {
@@ -495,52 +765,71 @@
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 14px;
     }
 
     .metric-box {
-      background: #0b111e;
+      background: var(--surface);
       border: 1px solid var(--card-border);
       border-radius: 10px;
-      padding: 12px 10px;
+      padding: 11px 8px;
       text-align: center;
     }
 
     .metric-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       text-transform: uppercase;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 4px;
     }
 
     .metric-val {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: var(--text-main);
     }
 
     .metric-sub {
-      font-size: 0.65rem;
+      font-size: 0.64rem;
       color: var(--text-muted);
       margin-top: 2px;
     }
 
-    /* SVG Chart */
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
     .chart-container {
-      background: #0b111e;
+      background: var(--surface);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 16px 10px 10px 10px;
-      margin-bottom: 16px;
-      position: relative;
+      padding: 10px 6px 6px 6px;
     }
 
     svg.bp-chart {
       width: 100%;
-      height: 200px;
-      overflow: visible;
+      height: 185px;
+      display: block;
+    }
+
+    /* Print-Only Clinical Table */
+    .print-only-table {
+      display: none;
     }
 
     /* Bottom Navigation */
@@ -549,13 +838,13 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(21, 30, 46, 0.95);
+      background: rgba(21, 30, 46, 0.96);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-top: 1px solid var(--card-border);
       display: flex;
       justify-content: space-around;
-      padding: 4px 0;
+      padding: 6px 0 calc(6px + env(safe-area-inset-bottom, 0px));
       z-index: 100;
       max-width: 600px;
       margin: 0 auto;
@@ -572,14 +861,14 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      padding: 2px 12px;
+      padding: 4px 14px;
       border-radius: 8px;
       transition: color 0.15s;
     }
 
     .nav-item svg {
-      width: 18px;
-      height: 18px;
+      width: 19px;
+      height: 19px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2;
@@ -594,29 +883,38 @@
     /* Toast Notification */
     .toast {
       position: fixed;
-      top: 65px;
+      top: 62px;
       left: 50%;
-      transform: translateX(-50%) translateY(-20px);
+      transform: translateX(-50%) translateY(-16px);
       background: #1e293b;
-      color: white;
+      color: #f8fafc;
       border: 1px solid var(--primary);
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 30px;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 600;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      max-width: calc(100vw - 24px);
+      text-align: center;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 200;
     }
 
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.warn {
+      border-color: var(--warning);
+      color: #fef3c7;
+    }
+
+    .toast.err {
+      border-color: var(--danger);
+      color: #fecaca;
     }
 
     /* Clinical Printable View */
@@ -626,7 +924,7 @@
         color: #000000 !important;
         padding-bottom: 0 !important;
       }
-      header, nav.bottom-nav, .no-print {
+      header, nav.bottom-nav, .no-print, .setup-banner, .js-guard {
         display: none !important;
       }
       .card {
@@ -636,7 +934,7 @@
         box-shadow: none !important;
         break-inside: avoid;
       }
-      .metric-box {
+      .metric-box, .chart-container {
         background: #f8fafc !important;
         border: 1px solid #dddddd !important;
         color: #000000 !important;
@@ -645,10 +943,22 @@
         color: #000000 !important;
       }
       .tab-content {
+        display: none !important;
+      }
+      #tab-trends {
         display: block !important;
       }
-      #tab-log, #tab-settings {
-        display: none !important;
+      .print-only-table {
+        display: table !important;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 11px;
+      }
+      .print-only-table th, .print-only-table td {
+        border: 1px solid #ccc;
+        padding: 5px 6px;
+        text-align: left;
       }
     }
   </style>
@@ -660,108 +970,134 @@
     <div class="brand">
       <div class="brand-icon">♥</div>
       <span>CardioBP</span>
-      <span class="rev-badge" id="appVersion">v1.3.1 • 2026-11-03 10:10</span>
+      <span class="rev-badge" id="appVersion">Rev v1.4.0</span>
     </div>
-    <div class="sync-status" id="syncStatus">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncText">Intervals.icu Active</span>
-    </div>
+    <button type="button" class="sync-status" id="syncStatusBtn" onclick="onSyncPillClick()">
+      <div class="sync-dot warn" id="syncDot"></div>
+      <span id="syncText">Checking…</span>
+    </button>
   </header>
 
   <!-- Notification Toast -->
-  <div class="toast" id="toast">
-    <span id="toastMsg">Saved & Synced!</span>
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span id="toastMsg">Ready</span>
   </div>
 
   <main>
+    <!-- Pure-HTML Guard for JS-Disabled Viewers (e.g. Google Drive Preview) -->
+    <div class="js-guard" id="jsDisabledBanner">
+      <h2>JavaScript is Disabled in This Preview</h2>
+      <p>Google Drive's built-in file preview blocks scripts, so auto-date, the <b>Now</b> button, and saving cannot run here. Open the live CardioBP PWA in Chrome instead:</p>
+      <a href="https://davefroriep.github.io/cardio-bp/" target="_blank" rel="noopener">Open Live CardioBP App ➔</a>
+    </div>
+    <script>
+      (function () {
+        var b = document.getElementById('jsDisabledBanner');
+        if (b) b.style.display = 'none';
+      })();
+    </script>
+
+    <!-- One-Tap Key Setup Banner (only visible if Intervals.icu API key is not configured yet) -->
+    <div class="setup-banner no-print" id="setupBanner">
+      <span>Intervals.icu API key not set on this device yet — readings still save locally.</span>
+      <button type="button" onclick="openSyncSettings()">Set Key</button>
+    </div>
+
     <!-- TAB 1: QUICK LOG -->
     <section id="tab-log" class="tab-content active">
       <div class="card">
         <div class="card-title">
-          <span>New Measurement</span>
-          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;" id="autoTimeNotice">Auto-Set</span>
+          <span id="formCardHeading">New Measurement</span>
+          <span class="notice-pill" id="autoTimeNotice">Auto-Set</span>
         </div>
 
-        <form id="bpForm" onsubmit="handleFormSubmit(event)">
-          <!-- Date & Time Row (Defaults to Now) -->
-          <div class="datetime-row" style="margin-bottom: 12px;">
+        <form id="bpForm" action="javascript:void(0)" novalidate>
+          <!-- Date & Time Row -->
+          <div class="datetime-row">
             <div class="field-group">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="field-label-row">
                 <label class="field-label" for="entryDate">Date</label>
-                <button type="button" class="btn-now-pill" onclick="resetFormDateTime(true)">⏱️ Now</button>
+                <button type="button" class="btn-now-pill" id="nowBtn" onclick="handleNowClick()">⏱️ Now</button>
               </div>
-              <input type="date" id="entryDate" required autocomplete="off" onchange="onDateChange()" onfocus="if(!this.value) resetFormDateTime();">
+              <input type="date" id="entryDate" required autocomplete="off">
             </div>
             <div class="field-group">
-              <label class="field-label" for="entryTime">Time</label>
-              <input type="time" id="entryTime" required autocomplete="off" onchange="onDateChange()" onfocus="if(!this.value) resetFormDateTime();">
+              <div class="field-label-row">
+                <label class="field-label" for="entryTime">Time</label>
+              </div>
+              <input type="time" id="entryTime" required autocomplete="off">
             </div>
           </div>
+
           <!-- Formatted Human-Readable Date Stamp -->
-          <div id="readableDateTime" style="font-size:0.8rem; color:var(--primary); margin-bottom:18px; font-weight:600; display:flex; align-items:center; gap:6px;">
-            <span>📅</span> <span id="readableDateTimeText">Setting date & time...</span>
+          <div id="readableDateTime" class="readable-stamp">
+            <span>📅</span>
+            <span id="readableDateTimeText">Setting date &amp; time…</span>
           </div>
+
+          <!-- Immediate Synchronous Date/Time Auto-Fill -->
           <script>
-            // Unconditional inline auto-fill as early as possible
-            (function() {
-              const d = new Date();
-              const pad = n => String(n).padStart(2, '0');
-              const dEl = document.getElementById('entryDate');
-              const tEl = document.getElementById('entryTime');
-              const ds = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-              const ts = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-              if (dEl) { dEl.value = ds; dEl.defaultValue = ds; dEl.setAttribute('value', ds); }
-              if (tEl) { tEl.value = ts; tEl.defaultValue = ts; tEl.setAttribute('value', ts); }
-              const rEl = document.getElementById('readableDateTimeText');
+            (function () {
+              var d = new Date();
+              var pad = function (n) { return String(n).padStart(2, '0'); };
+              var ds = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+              var ts = pad(d.getHours()) + ':' + pad(d.getMinutes());
+              var dEl = document.getElementById('entryDate');
+              var tEl = document.getElementById('entryTime');
+              if (dEl) { dEl.value = ds; dEl.defaultValue = ds; }
+              if (tEl) { tEl.value = ts; tEl.defaultValue = ts; }
+              var rEl = document.getElementById('readableDateTimeText');
               if (rEl) {
                 try {
-                  const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' };
-                  rEl.innerText = d.toLocaleString('en-US', opts);
-                } catch(e) {
-                  rEl.innerText = `${ds} ${ts}`;
+                  rEl.textContent = d.toLocaleString('en-US', {
+                    weekday: 'short', month: 'short', day: 'numeric',
+                    year: 'numeric', hour: 'numeric', minute: '2-digit'
+                  });
+                } catch (e) {
+                  rEl.textContent = ds + ' ' + ts;
                 }
               }
             })();
           </script>
 
+          <!-- Validation Error Box -->
+          <div class="form-error" id="formError" role="alert"></div>
+
           <!-- Systolic & Diastolic Keypad Targets -->
           <div class="bp-row">
             <div class="bp-input-wrapper">
               <div class="bp-input-label">Systolic</div>
-              <input 
-                type="number" 
-                id="systolic" 
-                inputmode="numeric" 
-                pattern="[0-9]*" 
-                min="60" 
-                max="260" 
-                placeholder="120" 
-                autofocus 
-                required 
-                oninput="onSystolicInput(this)"
+              <input
+                type="number"
+                id="systolic"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                min="60"
+                max="260"
+                placeholder="120"
+                required
               >
               <div class="bp-unit">mmHg (Top)</div>
             </div>
 
             <div class="bp-input-wrapper">
               <div class="bp-input-label">Diastolic</div>
-              <input 
-                type="number" 
-                id="diastolic" 
-                inputmode="numeric" 
-                pattern="[0-9]*" 
-                min="40" 
-                max="160" 
-                placeholder="80" 
-                required 
-                oninput="onDiastolicInput(this)"
+              <input
+                type="number"
+                id="diastolic"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                min="35"
+                max="160"
+                placeholder="80"
+                required
               >
               <div class="bp-unit">mmHg (Bottom)</div>
             </div>
           </div>
 
           <!-- Live AHA Stage Badge & MAP Preview -->
-          <div class="live-preview" id="livePreview" style="display:none;">
+          <div class="live-preview" id="livePreview">
             <div class="stage-badge normal" id="stageBadge">Normal</div>
             <div class="clinical-metrics">
               <span>MAP: <strong id="mapVal">--</strong></span>
@@ -769,50 +1105,57 @@
             </div>
           </div>
 
-          <!-- Pulse (100% Optional) -->
+          <!-- Pulse (Optional) -->
           <div class="pulse-row">
-            <div class="field-label">
+            <label class="field-label" for="pulse">
               <span style="color:#f43f5e;">♥</span> Pulse / Heart Rate (Optional)
-            </div>
-            <input 
-              type="number" 
-              id="pulse" 
-              inputmode="numeric" 
-              pattern="[0-9]*" 
+            </label>
+            <input
+              type="number"
+              id="pulse"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="30"
+              max="220"
               placeholder="bpm"
             >
           </div>
 
-          <!-- Notes -->
-          <div class="field-group" style="margin-bottom: 20px;">
-            <label class="field-label" for="entryNotes">Notes:</label>
-            <input 
-              type="text" 
-              id="entryNotes" 
-              placeholder="Optional notes (e.g. coffee, headache, after walk...)" 
+          <!-- Notes (Stored Locally Only — Never Sent to Intervals.icu) -->
+          <div class="field-group" style="margin-bottom: 14px;">
+            <label class="field-label" for="entryNotes">Notes (local only):</label>
+            <input
+              type="text"
+              id="entryNotes"
+              placeholder="Optional (e.g. Left arm, seated 5 min, post-coffee...)"
               autocomplete="off"
             >
           </div>
 
           <!-- Save Button -->
           <button type="submit" class="btn" id="saveBtn">
-            <span>Save & Sync to Intervals.icu</span>
-            <span style="font-size:1.2rem;">➔</span>
+            <span>Save &amp; Sync to Intervals.icu</span>
+            <span style="font-size:1.15rem;">➔</span>
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelEdit()">
+            Cancel Edit
           </button>
         </form>
       </div>
     </section>
 
-    <!-- TAB 2: HISTORY (EDIT / DELETE) -->
+    <!-- TAB 2: HISTORY -->
     <section id="tab-history" class="tab-content">
       <div class="card">
         <div class="card-title">
           <span>Measurement History</span>
-          <span id="historyCount" style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">0 entries</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="historyCount" class="notice-pill">0 entries</span>
+            <button type="button" class="btn-now-pill" id="retryAllBtn" style="display:none;" onclick="retryPendingSyncs(true)">↻ Retry Sync</button>
+          </div>
         </div>
-        <div id="historyList">
-          <!-- Dynamic History Cards -->
-        </div>
+        <div id="historyList"></div>
       </div>
     </section>
 
@@ -821,12 +1164,12 @@
       <div class="card">
         <div class="card-title">
           <span>Cardiologist Clinical Summary</span>
-          <button class="icon-btn no-print" onclick="window.print()" title="Print / Save PDF for Doctor">🖨️</button>
+          <button type="button" class="icon-btn no-print" onclick="window.print()" title="Print / Save PDF for Doctor">🖨️</button>
         </div>
 
         <div class="metric-grid">
           <div class="metric-box">
-            <div class="metric-label">30-Day Avg</div>
+            <div class="metric-label">30-Reading Avg</div>
             <div class="metric-val" id="avgBP">--/--</div>
             <div class="metric-sub">Systolic / Diastolic</div>
           </div>
@@ -842,19 +1185,19 @@
           </div>
         </div>
 
-        <div style="margin-bottom: 16px;">
-          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">AHA Blood Pressure Stages Breakdown</div>
+        <div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:6px; font-weight:600;">AHA Blood Pressure Stages Breakdown</div>
           <div style="display:flex; height:12px; border-radius:6px; overflow:hidden; background:#223049;" id="stageDistBar">
             <div style="background:var(--normal); width:0%" id="distNormal"></div>
             <div style="background:var(--elevated); width:0%" id="distElevated"></div>
             <div style="background:var(--stage1); width:0%" id="distStage1"></div>
             <div style="background:var(--stage2); width:0%" id="distStage2"></div>
           </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-top:4px;">
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:0.7rem; color:var(--text-muted); margin-top:5px;">
             <span>Normal: <b id="pctNormal" style="color:#34d399">0%</b></span>
             <span>Elevated: <b id="pctElevated" style="color:#facc15">0%</b></span>
             <span>Stage 1: <b id="pctStage1" style="color:#fb923c">0%</b></span>
-            <span>Stage 2: <b id="pctStage2" style="color:#f87171">0%</b></span>
+            <span>Stage 2+: <b id="pctStage2" style="color:#f87171">0%</b></span>
           </div>
         </div>
       </div>
@@ -863,220 +1206,357 @@
       <div class="card">
         <div class="card-title">
           <span>Blood Pressure Trend Line</span>
-          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">Last 14 readings</span>
+          <span class="notice-pill">Last 14 readings</span>
+        </div>
+        <div class="chart-legend">
+          <span><i class="legend-dot" style="background:#38bdf8;"></i>Systolic</span>
+          <span><i class="legend-dot" style="background:#f43f5e;"></i>Diastolic</span>
+          <span><i class="legend-dot" style="background:#475569;"></i>120 / 80 Ref</span>
         </div>
         <div class="chart-container">
-          <svg class="bp-chart" id="trendSvg" viewBox="0 0 500 200"></svg>
+          <svg class="bp-chart" id="trendSvg" viewBox="0 0 500 210"></svg>
         </div>
+
+        <!-- Print-Only Log Table for Doctor PDF -->
+        <table class="print-only-table" id="printTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>BP (mmHg)</th>
+              <th>Pulse</th>
+              <th>MAP</th>
+              <th>Stage</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="printTableBody"></tbody>
+        </table>
       </div>
     </section>
 
-    <!-- TAB 4: SETTINGS & DRIVE DATA -->
+    <!-- TAB 4: SETTINGS & DATA -->
     <section id="tab-settings" class="tab-content">
       <div class="card">
         <div class="card-title">Intervals.icu Sync Configuration</div>
-        <div class="field-group" style="margin-bottom:12px;">
+        <div class="field-group" style="margin-bottom:10px;">
           <label class="field-label" for="athleteId">Athlete ID</label>
-          <input type="text" id="athleteId" value="i758105">
+          <input type="text" id="athleteId" value="i758105" autocapitalize="off" autocomplete="off" spellcheck="false">
         </div>
-        <div class="field-group" style="margin-bottom:16px;">
-          <label class="field-label" for="apiKey">API Key</label>
-          <input type="password" id="apiKey" value="4d5rn0dcv82roimz7sm6g84g9">
+        <div class="field-group" style="margin-bottom:12px;">
+          <label class="field-label" for="apiKey">API Key (stored locally on this device only)</label>
+          <div class="input-with-btn">
+            <input type="password" id="apiKey" placeholder="Paste Intervals.icu API key" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn-inline" id="toggleKeyBtn" onclick="toggleKeyVisibility()">Show</button>
+          </div>
+          <small style="font-size:0.71rem; color:var(--text-muted); margin-top:3px; line-height:1.35;">
+            Find in Intervals.icu → Settings → Developer Settings. Notes never leave this device; only numeric BP is synced.
+          </small>
         </div>
-        <button class="btn btn-secondary" onclick="saveSettings()">Save API Settings</button>
+
+        <div class="toggle-row">
+          <div>
+            <label for="syncPulseToRhr">Send BP pulse as Resting HR</label>
+            <small>Off by default so mid-day cuff readings do not overwrite your morning Resting HR in Intervals.icu.</small>
+          </div>
+          <input type="checkbox" id="syncPulseToRhr">
+        </div>
+
+        <button type="button" class="btn" onclick="saveSettings()">Save Settings</button>
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" id="testConnBtn" onclick="testIntervalsConnection()">Test Connection</button>
+          <button type="button" class="btn btn-secondary" id="pullHistBtn" onclick="pullIntervalsHistory()">Pull 90-Day BP</button>
+        </div>
+        <div class="status-box" id="settingsStatus"></div>
       </div>
 
       <div class="card">
-        <div class="card-title">Data Backup & Export</div>
-        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
-          Your entries are saved automatically in your browser's persistent storage. You can export a clean CSV file anytime to keep in your Google Drive or email to your doctor.
+        <div class="card-title">Data Backup &amp; Export</div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px; line-height:1.45;">
+          Readings are stored in this browser's persistent storage. Export a clean CSV anytime for Google Drive or your cardiologist.
         </div>
-        <button class="btn btn-secondary" style="margin-bottom:10px;" onclick="exportToCSV()">📥 Download / Save CSV to Drive</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('csvFileInput').click()">📤 Import BP Journal CSV</button>
-        <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="importFromCSV(event)">
+        <div class="btn-row" style="margin-top:0;">
+          <button type="button" class="btn btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('csvFileInput').click()">📤 Import CSV</button>
+        </div>
+        <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none;" onchange="importFromCSV(event)">
       </div>
     </section>
 
-    <!-- Visible Revision Footer Badge (User Rule Compliance) -->
-    <footer style="text-align:center; padding:18px 0 24px 0; font-size:0.75rem; color:var(--text-muted); opacity:0.85;">
-      <span style="display:inline-block; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:3px 12px; border-radius:12px; font-weight:600; letter-spacing:0.04em;">
-        Rev v1.3.1 • 2026-11-03 10:10
+    <!-- Visible Revision Footer Badge -->
+    <footer class="no-print" style="text-align:center; padding:14px 0 18px 0; font-size:0.74rem; color:var(--text-muted);">
+      <span style="display:inline-block; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:3px 12px; border-radius:12px; font-weight:600; letter-spacing:0.03em;">
+        Rev v1.4.0 — 2026-11-25 13:15
       </span>
     </footer>
   </main>
 
   <!-- Bottom Navigation -->
-  <nav class="bottom-nav no-print">
-    <button class="nav-item active" onclick="switchTab('tab-log', this)">
+  <nav class="bottom-nav no-print" aria-label="Main navigation">
+    <button type="button" class="nav-item active" data-tab="tab-log" onclick="switchTab('tab-log', this)">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       <span>Log</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-history', this)">
+    <button type="button" class="nav-item" data-tab="tab-history" onclick="switchTab('tab-history', this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>History</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-trends', this)">
+    <button type="button" class="nav-item" data-tab="tab-trends" onclick="switchTab('tab-trends', this)">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       <span>Cardiologist</span>
     </button>
-    <button class="nav-item" onclick="switchTab('tab-settings', this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <button type="button" class="nav-item" data-tab="tab-settings" onclick="switchTab('tab-settings', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Settings</span>
     </button>
   </nav>
 
   <script>
-    // Register Service Worker for PWA Home Screen Install & Offline Cache
-    if ('serviceWorker' in navigator) {
+    // Service Worker Registration (Network-First PWA cache)
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then((reg) => {
-          console.log('CardioBP PWA Service Worker Registered', reg.scope);
-          reg.onupdatefound = () => {
-            const installing = reg.installing;
-            installing.onstatechange = () => {
-              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('New CardioBP update available.');
-              }
-            };
-          };
-        }).catch(err => console.log('SW registration error:', err));
+          reg.update().catch(() => {});
+        }).catch(err => console.warn('SW registration error:', err));
       });
     }
 
-    // Constants & Configuration
     const STORAGE_KEY = 'cardio_bp_entries_v1';
     const SETTINGS_KEY = 'cardio_bp_settings_v1';
 
     let config = {
       athleteId: 'i758105',
-      apiKey: '4d5rn0dcv82roimz7sm6g84g9'
+      apiKey: '',
+      syncPulseToRhr: false
     };
 
     let entries = [];
     let editIndex = null;
+    let userEditedDateTime = false;
+    let isSubmitting = false;
+    let lastSyncError = null;
+    let toastTimer = null;
 
-    // Initialization
-    function init() {
-      resetFormDateTime(); // Priority #1: Set clock immediately
-      try { loadSettings(); } catch(e) { console.error('Settings load error:', e); }
-      try { loadEntries(); } catch(e) { console.error('Entries load error:', e); }
-      setupKeypadAdvancement();
-      try { renderHistory(); } catch(e) { console.error('History render error:', e); }
-      try { renderTrends(); } catch(e) { console.error('Trends render error:', e); }
-
-      // Attach focus fallbacks so tapping empty date/time always auto-populates
-      const dEl = document.getElementById('entryDate');
-      const tEl = document.getElementById('entryTime');
-      if (dEl) dEl.addEventListener('focus', () => { if (!dEl.value) resetFormDateTime(); });
-      if (tEl) tEl.addEventListener('focus', () => { if (!tEl.value) resetFormDateTime(); });
-
-      // Ensure focus on Systolic on startup
-      setTimeout(() => {
-        const sysInput = document.getElementById('systolic');
-        if (sysInput && !sysInput.value) sysInput.focus();
-      }, 150);
+    function pad2(n) {
+      return String(n).padStart(2, '0');
     }
 
-    // Run immediately if DOM ready, otherwise wait for event
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
-    // Secondary guarantee on full page load
-    window.addEventListener('load', () => {
-      const dEl = document.getElementById('entryDate');
-      const tEl = document.getElementById('entryTime');
-      if (editIndex === null && ((dEl && !dEl.value) || (tEl && !tEl.value))) {
-        resetFormDateTime();
-      }
-    });
+    function formatLocalDate(d) {
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
 
-    // Re-check and auto-populate on mobile wake, app resume, or page restore (BFCache)
-    window.addEventListener('pageshow', () => {
-      if (editIndex === null) {
-        resetFormDateTime();
-      }
-      const sysInput = document.getElementById('systolic');
-      if (sysInput && !sysInput.value) sysInput.focus();
-    });
+    function formatLocalTime(d) {
+      return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && editIndex === null) {
-        const sys = document.getElementById('systolic');
-        const dia = document.getElementById('diastolic');
-        if ((!sys || !sys.value) && (!dia || !dia.value)) {
-          resetFormDateTime();
-        }
+    function format12Hour(d) {
+      try {
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      } catch (e) {
+        return formatLocalTime(d);
       }
-    });
+    }
 
-    // Populate Current Date and Time
+    function formatReadableDateTime(d) {
+      try {
+        return d.toLocaleString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        return `${formatLocalDate(d)} ${formatLocalTime(d)}`;
+      }
+    }
+
+    function formatTimeLabel(timeStr) {
+      if (!timeStr || !timeStr.includes(':')) return timeStr || '';
+      const [hRaw, mRaw] = timeStr.split(':');
+      const h = parseInt(hRaw, 10);
+      const m = parseInt(mRaw, 10);
+      if (isNaN(h) || isNaN(m)) return timeStr;
+      const suffix = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${pad2(m)} ${suffix}`;
+    }
+
+    function parseLocalDateTime(dateVal, timeVal) {
+      if (!dateVal) return new Date();
+      const parts = dateVal.split('-').map(Number);
+      const tParts = (timeVal || '00:00').split(':').map(Number);
+      if (parts.length === 3 && !parts.some(isNaN)) {
+        return new Date(parts[0], parts[1] - 1, parts[2], tParts[0] || 0, tParts[1] || 0);
+      }
+      return new Date();
+    }
+
+    function sortEntries() {
+      entries.sort((a, b) => {
+        const ka = `${a.date || ''}T${a.time || '00:00'}`;
+        const kb = `${b.date || ''}T${b.time || '00:00'}`;
+        if (kb !== ka) return kb.localeCompare(ka);
+        return (b.id || 0) - (a.id || 0);
+      });
+    }
+
+    function setAutoNotice(isCustom) {
+      const el = document.getElementById('autoTimeNotice');
+      if (!el) return;
+      if (editIndex !== null) {
+        el.textContent = 'Editing';
+        el.className = 'notice-pill custom';
+      } else if (isCustom) {
+        el.textContent = 'Custom Time';
+        el.className = 'notice-pill custom';
+      } else {
+        el.textContent = 'Auto-Set';
+        el.className = 'notice-pill';
+      }
+    }
+
+    // Populate Current Date & Time
     function resetFormDateTime(showFeedback) {
       const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const year = now.getFullYear();
-      const month = pad(now.getMonth() + 1);
-      const day = pad(now.getDate());
-      const hours = pad(now.getHours());
-      const mins = pad(now.getMinutes());
-
-      const dateStr = `${year}-${month}-${day}`;
-      const timeStr = `${hours}:${mins}`;
+      const dateStr = formatLocalDate(now);
+      const timeStr = formatLocalTime(now);
 
       const dateEl = document.getElementById('entryDate');
       const timeEl = document.getElementById('entryTime');
       if (dateEl) {
         dateEl.value = dateStr;
         dateEl.defaultValue = dateStr;
-        dateEl.setAttribute('value', dateStr);
       }
       if (timeEl) {
         timeEl.value = timeStr;
         timeEl.defaultValue = timeStr;
-        timeEl.setAttribute('value', timeStr);
       }
 
+      userEditedDateTime = false;
+      setAutoNotice(false);
       updateDateTimeDisplay(now);
 
-      if (showFeedback && typeof showToast === 'function') {
-        showToast(`Clock synced: ${hours}:${mins}`);
+      if (showFeedback) {
+        const nowBtn = document.getElementById('nowBtn');
+        [nowBtn, dateEl, timeEl].forEach((el) => {
+          if (!el) return;
+          const cls = el === nowBtn ? 'flash' : 'flash-field';
+          el.classList.remove(cls);
+          void el.offsetWidth;
+          el.classList.add(cls);
+          setTimeout(() => el.classList.remove(cls), 450);
+        });
+        showToast(`⏱️ Clock synced: ${format12Hour(now)}`);
       }
+    }
+
+    function handleNowClick() {
+      resetFormDateTime(true);
     }
 
     function updateDateTimeDisplay(d) {
       const el = document.getElementById('readableDateTimeText');
       if (!el) return;
       if (!d) {
-        const dateEl = document.getElementById('entryDate');
-        const timeEl = document.getElementById('entryTime');
-        const dateVal = dateEl ? dateEl.value : '';
-        const timeVal = timeEl ? timeEl.value : '';
-        if (dateVal && timeVal) {
-          const parts = dateVal.split('-');
-          const timeParts = timeVal.split(':');
-          d = new Date(parts[0], parts[1] - 1, parts[2], timeParts[0], timeParts[1]);
-        } else {
-          d = new Date();
-        }
+        const dateVal = document.getElementById('entryDate')?.value || '';
+        const timeVal = document.getElementById('entryTime')?.value || '';
+        d = parseLocalDateTime(dateVal, timeVal);
       }
-      try {
-        const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' };
-        el.innerText = d.toLocaleString('en-US', opts);
-      } catch (err) {
-        el.innerText = d.toString();
-      }
+      el.textContent = formatReadableDateTime(d);
     }
 
-    function onDateChange() {
+    function onDateTimeEdited() {
+      userEditedDateTime = true;
+      setAutoNotice(true);
       updateDateTimeDisplay();
     }
 
-    // Auto-advance Keypad: Enter in Systolic jumps straight to Diastolic
-    function setupKeypadAdvancement() {
+    function showFormError(msg) {
+      const box = document.getElementById('formError');
+      if (!box) return;
+      if (msg) {
+        box.textContent = msg;
+        box.classList.add('show');
+      } else {
+        box.textContent = '';
+        box.classList.remove('show');
+      }
+    }
+
+    // AHA Blood Pressure Classification
+    function getAHAStage(sys, dia) {
+      if (sys > 180 || dia > 120) return { name: 'Crisis', class: 'crisis' };
+      if (sys >= 140 || dia >= 90) return { name: 'Stage 2', class: 'stage2' };
+      if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) return { name: 'Stage 1', class: 'stage1' };
+      if (sys >= 120 && sys <= 129 && dia < 80) return { name: 'Elevated', class: 'elevated' };
+      return { name: 'Normal', class: 'normal' };
+    }
+
+    function updateLivePreview() {
+      const sys = parseInt(document.getElementById('systolic').value, 10);
+      const dia = parseInt(document.getElementById('diastolic').value, 10);
+      const preview = document.getElementById('livePreview');
+      const badge = document.getElementById('stageBadge');
+
+      if (!isNaN(sys) && !isNaN(dia) && sys > 50 && dia > 30) {
+        preview.classList.add('show');
+        if (dia >= sys) {
+          badge.className = 'stage-badge invalid';
+          badge.textContent = 'Check Values (Dia ≥ Sys)';
+          document.getElementById('mapVal').textContent = '--';
+          document.getElementById('ppVal').textContent = '--';
+          return;
+        }
+        const stage = getAHAStage(sys, dia);
+        badge.className = `stage-badge ${stage.class}`;
+        badge.textContent = stage.name;
+        const map = Math.round((2 * dia + sys) / 3);
+        const pp = sys - dia;
+        document.getElementById('mapVal').textContent = `${map} mmHg`;
+        document.getElementById('ppVal').textContent = `${pp} mmHg`;
+      } else {
+        preview.classList.remove('show');
+      }
+    }
+
+    function setupInputs() {
+      const form = document.getElementById('bpForm');
+      const dEl = document.getElementById('entryDate');
+      const tEl = document.getElementById('entryTime');
       const sysInput = document.getElementById('systolic');
       const diaInput = document.getElementById('diastolic');
+
+      form.addEventListener('submit', handleFormSubmit);
+
+      dEl.addEventListener('change', onDateTimeEdited);
+      tEl.addEventListener('change', onDateTimeEdited);
+      dEl.addEventListener('focus', () => { if (!dEl.value) resetFormDateTime(false); });
+      tEl.addEventListener('focus', () => { if (!tEl.value) resetFormDateTime(false); });
+
+      sysInput.addEventListener('input', (e) => {
+        showFormError('');
+        const isDeleting = e.inputType && e.inputType.startsWith('delete');
+        if (!isDeleting && sysInput.value.length === 3 && parseInt(sysInput.value, 10) >= 100 && !diaInput.value) {
+          diaInput.focus();
+        }
+        updateLivePreview();
+      });
+
+      diaInput.addEventListener('input', () => {
+        showFormError('');
+        updateLivePreview();
+      });
 
       sysInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -1086,90 +1566,71 @@
         }
       });
 
-      // Enter in Diastolic submits form immediately
       diaInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          document.getElementById('bpForm').requestSubmit();
+          form.requestSubmit ? form.requestSubmit() : handleFormSubmit(new Event('submit'));
         }
       });
     }
 
-    // Input Handlers for Real-time Stage & MAP calculation
-    function onSystolicInput(el) {
-      if (el.value.length === 3 && parseInt(el.value) >= 100) {
-        // Optional quick-jump when 3 digits are reached
-        const dia = document.getElementById('diastolic');
-        if (!dia.value) {
-          dia.focus();
-        }
-      }
-      updateLivePreview();
-    }
-
-    function onDiastolicInput(el) {
-      updateLivePreview();
-    }
-
-    function updateLivePreview() {
-      const sys = parseInt(document.getElementById('systolic').value);
-      const dia = parseInt(document.getElementById('diastolic').value);
-      const preview = document.getElementById('livePreview');
-
-      if (!isNaN(sys) && !isNaN(dia) && sys > 50 && dia > 30) {
-        preview.style.display = 'flex';
-        const stage = getAHAStage(sys, dia);
-        const badge = document.getElementById('stageBadge');
-        badge.className = `stage-badge ${stage.class}`;
-        badge.innerText = stage.name;
-
-        // MAP = (2*Diastolic + Systolic) / 3
-        const map = Math.round((2 * dia + sys) / 3);
-        document.getElementById('mapVal').innerText = `${map} mmHg`;
-
-        // Pulse Pressure = Systolic - Diastolic
-        const pp = sys - dia;
-        document.getElementById('ppVal').innerText = `${pp} mmHg`;
-      } else {
-        preview.style.display = 'none';
-      }
-    }
-
-    // AHA Blood Pressure Classification
-    function getAHAStage(sys, dia) {
-      if (sys > 180 || dia > 120) {
-        return { name: 'Crisis', class: 'crisis' };
-      }
-      if (sys >= 140 || dia >= 90) {
-        return { name: 'Stage 2', class: 'stage2' };
-      }
-      if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) {
-        return { name: 'Stage 1', class: 'stage1' };
-      }
-      if (sys >= 120 && sys <= 129 && dia < 80) {
-        return { name: 'Elevated', class: 'elevated' };
-      }
-      return { name: 'Normal', class: 'normal' };
-    }
-
     // Form Submission
     async function handleFormSubmit(e) {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
+      if (isSubmitting) return;
 
-      const date = document.getElementById('entryDate').value;
-      const time = document.getElementById('entryTime').value;
-      const systolic = parseInt(document.getElementById('systolic').value);
-      const diastolic = parseInt(document.getElementById('diastolic').value);
-      const pulseVal = document.getElementById('pulse').value;
-      const pulse = pulseVal ? parseInt(pulseVal) : null;
-      const notes = document.getElementById('entryNotes').value;
+      showFormError('');
+
+      const dEl = document.getElementById('entryDate');
+      const tEl = document.getElementById('entryTime');
+      if (!dEl.value || !tEl.value) {
+        resetFormDateTime(false);
+      }
+      const date = dEl.value;
+      const time = tEl.value;
+
+      const sysRaw = document.getElementById('systolic').value.trim();
+      const diaRaw = document.getElementById('diastolic').value.trim();
+      const pulseRaw = document.getElementById('pulse').value.trim();
+      const notes = document.getElementById('entryNotes').value.trim();
+
+      const systolic = parseInt(sysRaw, 10);
+      const diastolic = parseInt(diaRaw, 10);
+      const pulse = pulseRaw ? parseInt(pulseRaw, 10) : null;
+
+      if (isNaN(systolic) || systolic < 60 || systolic > 260) {
+        showFormError('Enter a valid Systolic pressure between 60 and 260 mmHg.');
+        document.getElementById('systolic').focus();
+        return;
+      }
+      if (isNaN(diastolic) || diastolic < 35 || diastolic > 160) {
+        showFormError('Enter a valid Diastolic pressure between 35 and 160 mmHg.');
+        document.getElementById('diastolic').focus();
+        return;
+      }
+      if (diastolic >= systolic) {
+        showFormError('Diastolic must be lower than Systolic — double-check both numbers.');
+        document.getElementById('diastolic').focus();
+        return;
+      }
+      if (pulse !== null && (isNaN(pulse) || pulse < 30 || pulse > 220)) {
+        showFormError('Pulse must be between 30 and 220 bpm (or leave blank).');
+        document.getElementById('pulse').focus();
+        return;
+      }
+
+      isSubmitting = true;
+      const saveBtn = document.getElementById('saveBtn');
+      const prevBtnHtml = saveBtn.innerHTML;
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>Saving…</span>';
 
       const map = Math.round((2 * diastolic + systolic) / 3);
       const pp = systolic - diastolic;
       const stage = getAHAStage(systolic, diastolic).name;
 
       const record = {
-        id: Date.now(),
+        id: editIndex !== null && entries[editIndex] ? entries[editIndex].id : Date.now(),
         date,
         time,
         systolic,
@@ -1178,58 +1639,84 @@
         map,
         pp,
         stage,
-        notes
+        notes,
+        synced: false,
+        syncError: null,
+        syncedAt: null
       };
 
-      if (editIndex !== null) {
+      if (editIndex !== null && entries[editIndex]) {
         entries[editIndex] = record;
         editIndex = null;
-        document.getElementById('saveBtn').innerHTML = `<span>Save & Sync to Intervals.icu</span><span style="font-size:1.2rem;">➔</span>`;
+        document.getElementById('formCardHeading').textContent = 'New Measurement';
+        document.getElementById('cancelEditBtn').style.display = 'none';
       } else {
         entries.unshift(record);
       }
 
+      sortEntries();
       saveEntries();
       renderHistory();
       renderTrends();
+      updateSyncPill();
 
-      // Sync to Intervals.icu in background
-      showToast('Saving to Intervals.icu...');
-      const syncSuccess = await syncToIntervals(date, systolic, diastolic, pulse);
-
-      if (syncSuccess) {
-        showToast('✓ Saved & Synced to Intervals.icu');
+      // Attempt Intervals.icu Sync
+      if (!config.apiKey) {
+        record.syncError = 'No API key configured';
+        saveEntries();
+        renderHistory();
+        updateSyncPill();
+        showToast('Saved locally — add Intervals.icu API key in Settings to sync', 'warn');
       } else {
-        showToast('Saved locally (Offline/Intervals sync queued)');
+        const res = await syncToIntervals(date, systolic, diastolic, pulse);
+        if (res.ok) {
+          record.synced = true;
+          record.syncError = null;
+          record.syncedAt = Date.now();
+          lastSyncError = null;
+          saveEntries();
+          renderHistory();
+          updateSyncPill();
+          showToast(`✓ Saved ${systolic}/${diastolic} & synced to Intervals.icu`);
+        } else {
+          record.synced = false;
+          record.syncError = res.error;
+          lastSyncError = res.error;
+          saveEntries();
+          renderHistory();
+          updateSyncPill();
+          showToast(`Saved locally — Sync failed (${res.error})`, 'warn');
+        }
       }
 
-      // Reset form and focus on systolic for next reading
+      // Reset form cleanly
       document.getElementById('systolic').value = '';
       document.getElementById('diastolic').value = '';
       document.getElementById('pulse').value = '';
       document.getElementById('entryNotes').value = '';
-      document.getElementById('livePreview').style.display = 'none';
-      resetFormDateTime();
+      document.getElementById('livePreview').classList.remove('show');
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span>Save &amp; Sync to Intervals.icu</span><span style="font-size:1.15rem;">➔</span>';
+      isSubmitting = false;
 
-      setTimeout(() => {
-        document.getElementById('systolic').focus();
-      }, 100);
+      resetFormDateTime(false);
     }
 
-    // Sync to Intervals.icu API
+    // Sync numeric BP to Intervals.icu (Strict Privacy Firewall: NEVER sends notes)
     async function syncToIntervals(dateStr, systolic, diastolic, pulse) {
-      if (!config.athleteId || !config.apiKey) return false;
+      if (!config.athleteId || !config.apiKey) {
+        return { ok: false, error: 'Missing Athlete ID or API key' };
+      }
 
       const authStr = btoa(`API_KEY:${config.apiKey}`);
-      const url = `https://intervals.icu/api/v1/athlete/${config.athleteId}/wellness/${dateStr}`;
+      const url = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(config.athleteId)}/wellness/${encodeURIComponent(dateStr)}`;
 
       const payload = {
         systolic: systolic,
         diastolic: diastolic
       };
 
-      // If user typed a pulse, also update restingHR if desired
-      if (pulse) {
+      if (pulse && config.syncPulseToRhr) {
         payload.restingHR = pulse;
       }
 
@@ -1244,101 +1731,381 @@
         });
 
         if (response.ok) {
-          updateSyncIndicator(true);
-          return true;
-        } else {
-          console.warn('Intervals API Error:', response.status);
-          updateSyncIndicator(false);
-          return false;
+          return { ok: true };
         }
+        if (response.status === 401 || response.status === 403) {
+          return { ok: false, error: `HTTP ${response.status} — check API key` };
+        }
+        return { ok: false, error: `HTTP ${response.status}` };
       } catch (err) {
-        console.error('Fetch error:', err);
-        updateSyncIndicator(false);
+        return { ok: false, error: navigator.onLine ? 'Network/CORS error' : 'Offline' };
+      }
+    }
+
+    async function retrySingleEntry(idx) {
+      const item = entries[idx];
+      if (!item) return;
+      if (!config.apiKey) {
+        openSyncSettings();
+        showToast('Enter your Intervals.icu API key first', 'warn');
+        return;
+      }
+      showToast(`Syncing ${item.date}…`);
+      const res = await syncToIntervals(item.date, item.systolic, item.diastolic, item.pulse);
+      if (res.ok) {
+        item.synced = true;
+        item.syncError = null;
+        item.syncedAt = Date.now();
+        lastSyncError = null;
+        saveEntries();
+        renderHistory();
+        updateSyncPill();
+        showToast(`✓ Synced ${item.systolic}/${item.diastolic} (${item.date})`);
+      } else {
+        item.syncError = res.error;
+        lastSyncError = res.error;
+        saveEntries();
+        renderHistory();
+        updateSyncPill();
+        showToast(`Sync failed: ${res.error}`, 'err');
+      }
+    }
+
+    async function retryPendingSyncs(notify) {
+      if (!config.apiKey || !navigator.onLine) {
+        if (notify && !config.apiKey) openSyncSettings();
+        return;
+      }
+      const pending = entries.filter(e => e.synced === false);
+      if (pending.length === 0) {
+        if (notify) showToast('All readings are already synced ✓');
+        return;
+      }
+
+      // Sync the newest entry per date so older same-day entries don't overwrite newer ones on Intervals.icu
+      const seenDates = new Set();
+      let syncedCount = 0;
+      let failedMsg = null;
+
+      for (const item of pending) {
+        if (seenDates.has(item.date)) {
+          item.synced = true;
+          item.syncError = null;
+          syncedCount++;
+          continue;
+        }
+        const res = await syncToIntervals(item.date, item.systolic, item.diastolic, item.pulse);
+        if (res.ok) {
+          seenDates.add(item.date);
+          item.synced = true;
+          item.syncError = null;
+          item.syncedAt = Date.now();
+          syncedCount++;
+        } else {
+          item.syncError = res.error;
+          failedMsg = res.error;
+          if (/401|403/.test(res.error)) break;
+        }
+      }
+
+      lastSyncError = failedMsg;
+      saveEntries();
+      renderHistory();
+      updateSyncPill();
+
+      if (notify) {
+        if (failedMsg) {
+          showToast(`Synced ${syncedCount}; failed: ${failedMsg}`, 'warn');
+        } else {
+          showToast(`✓ Synced ${syncedCount} pending reading${syncedCount === 1 ? '' : 's'}`);
+        }
+      }
+    }
+
+    function updateSyncPill() {
+      const dot = document.getElementById('syncDot');
+      const text = document.getElementById('syncText');
+      const setupBanner = document.getElementById('setupBanner');
+      const retryAllBtn = document.getElementById('retryAllBtn');
+
+      const pendingCount = entries.filter(e => e.synced === false).length;
+
+      const onSettingsTab = document.getElementById('tab-settings')?.classList.contains('active');
+      if (setupBanner) {
+        setupBanner.classList.toggle('show', !config.apiKey && !onSettingsTab);
+      }
+      if (retryAllBtn) {
+        retryAllBtn.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+      }
+
+      if (!config.apiKey) {
+        dot.className = 'sync-dot warn';
+        text.textContent = 'Setup Sync';
+      } else if (pendingCount > 0) {
+        dot.className = 'sync-dot warn';
+        text.textContent = `${pendingCount} Pending`;
+      } else if (lastSyncError) {
+        dot.className = 'sync-dot error';
+        text.textContent = 'Sync Error';
+      } else if (!navigator.onLine) {
+        dot.className = 'sync-dot warn';
+        text.textContent = 'Offline';
+      } else {
+        dot.className = 'sync-dot';
+        text.textContent = entries.some(e => e.synced) ? 'Intervals.icu Synced' : 'Intervals.icu Ready';
+      }
+    }
+
+    function onSyncPillClick() {
+      if (!config.apiKey) {
+        openSyncSettings();
+        return;
+      }
+      const pendingCount = entries.filter(e => e.synced === false).length;
+      if (pendingCount > 0) {
+        retryPendingSyncs(true);
+      } else {
+        openSyncSettings();
+      }
+    }
+
+    function openSyncSettings() {
+      const settingsBtn = document.querySelector('.nav-item[data-tab="tab-settings"]');
+      switchTab('tab-settings', settingsBtn);
+      setTimeout(() => {
+        const keyEl = document.getElementById('apiKey');
+        if (keyEl && !keyEl.value) keyEl.focus();
+      }, 100);
+    }
+
+    // Settings & Diagnostics
+    function loadSettings() {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          config = {
+            athleteId: (parsed.athleteId || 'i758105').trim(),
+            apiKey: (parsed.apiKey || '').trim(),
+            syncPulseToRhr: Boolean(parsed.syncPulseToRhr)
+          };
+        } catch (e) {}
+      }
+      document.getElementById('athleteId').value = config.athleteId;
+      document.getElementById('apiKey').value = config.apiKey;
+      document.getElementById('syncPulseToRhr').checked = config.syncPulseToRhr;
+    }
+
+    async function saveSettings() {
+      config.athleteId = document.getElementById('athleteId').value.trim() || 'i758105';
+      config.apiKey = document.getElementById('apiKey').value.trim();
+      config.syncPulseToRhr = document.getElementById('syncPulseToRhr').checked;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(config));
+      lastSyncError = null;
+      updateSyncPill();
+      showToast('Settings saved');
+
+      if (config.apiKey) {
+        const ok = await testIntervalsConnection();
+        if (ok && entries.some(e => e.synced === false)) {
+          await retryPendingSyncs(true);
+        }
+      } else {
+        setSettingsStatus('info', 'API key cleared. Readings will save locally on this device.');
+      }
+    }
+
+    function toggleKeyVisibility() {
+      const el = document.getElementById('apiKey');
+      const btn = document.getElementById('toggleKeyBtn');
+      if (el.type === 'password') {
+        el.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        el.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
+
+    function setSettingsStatus(kind, msg) {
+      const box = document.getElementById('settingsStatus');
+      if (!box) return;
+      box.className = `status-box ${kind}`;
+      box.textContent = msg;
+    }
+
+    async function testIntervalsConnection() {
+      const aid = document.getElementById('athleteId').value.trim();
+      const key = document.getElementById('apiKey').value.trim();
+      if (!aid || !key) {
+        setSettingsStatus('err', 'Enter both Athlete ID and API Key first.');
+        return false;
+      }
+
+      const btn = document.getElementById('testConnBtn');
+      btn.disabled = true;
+      setSettingsStatus('info', 'Testing Intervals.icu connection…');
+
+      try {
+        const authStr = btoa(`API_KEY:${key}`);
+        const resp = await fetch(`https://intervals.icu/api/v1/athlete/${encodeURIComponent(aid)}`, {
+          headers: { 'Authorization': `Basic ${authStr}` }
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const name = data.name || data.firstname || aid;
+          lastSyncError = null;
+          updateSyncPill();
+          setSettingsStatus('ok', `✓ Connected to Intervals.icu as ${name} (${aid})`);
+          btn.disabled = false;
+          return true;
+        }
+        setSettingsStatus('err', `Intervals.icu rejected credentials (HTTP ${resp.status}).`);
+        btn.disabled = false;
+        return false;
+      } catch (err) {
+        setSettingsStatus('err', `Connection failed: ${navigator.onLine ? 'Network error' : 'Device offline'}`);
+        btn.disabled = false;
         return false;
       }
     }
 
-    function updateSyncIndicator(online) {
-      const dot = document.getElementById('syncDot');
-      const text = document.getElementById('syncText');
-      if (online) {
-        dot.className = 'sync-dot';
-        text.innerText = 'Intervals.icu Synced';
-      } else {
-        dot.className = 'sync-dot offline';
-        text.innerText = 'Intervals Offline';
+    async function pullIntervalsHistory() {
+      const aid = document.getElementById('athleteId').value.trim();
+      const key = document.getElementById('apiKey').value.trim();
+      if (!aid || !key) {
+        setSettingsStatus('err', 'Save your Intervals.icu API Key first.');
+        return;
       }
+
+      const btn = document.getElementById('pullHistBtn');
+      btn.disabled = true;
+      setSettingsStatus('info', 'Fetching last 90 days of BP readings from Intervals.icu…');
+
+      const newest = new Date();
+      const oldest = new Date();
+      oldest.setDate(oldest.getDate() - 90);
+
+      try {
+        const authStr = btoa(`API_KEY:${key}`);
+        const url = `https://intervals.icu/api/v1/athlete/${encodeURIComponent(aid)}/wellness?oldest=${formatLocalDate(oldest)}&newest=${formatLocalDate(newest)}`;
+        const resp = await fetch(url, { headers: { 'Authorization': `Basic ${authStr}` } });
+        if (!resp.ok) {
+          setSettingsStatus('err', `Could not pull history (HTTP ${resp.status}).`);
+          btn.disabled = false;
+          return;
+        }
+
+        const rows = await resp.json();
+        const existingKeys = new Set(entries.map(e => `${e.date}|${e.systolic}|${e.diastolic}`));
+        let added = 0;
+
+        for (const row of rows) {
+          if (row.systolic && row.diastolic && row.id) {
+            const k = `${row.id}|${row.systolic}|${row.diastolic}`;
+            if (!existingKeys.has(k)) {
+              const sys = Math.round(Number(row.systolic));
+              const dia = Math.round(Number(row.diastolic));
+              entries.push({
+                id: Date.now() + Math.random(),
+                date: row.id,
+                time: '08:00',
+                systolic: sys,
+                diastolic: dia,
+                pulse: null,
+                map: Math.round((2 * dia + sys) / 3),
+                pp: sys - dia,
+                stage: getAHAStage(sys, dia).name,
+                notes: 'Synced from Intervals.icu',
+                synced: true,
+                syncError: null,
+                syncedAt: Date.now()
+              });
+              existingKeys.add(k);
+              added++;
+            }
+          }
+        }
+
+        sortEntries();
+        saveEntries();
+        renderHistory();
+        renderTrends();
+        updateSyncPill();
+        setSettingsStatus('ok', added > 0
+          ? `✓ Imported ${added} BP reading${added === 1 ? '' : 's'} from Intervals.icu.`
+          : '✓ History is already up to date with Intervals.icu.');
+      } catch (err) {
+        setSettingsStatus('err', 'Network error while pulling Intervals.icu history.');
+      }
+      btn.disabled = false;
     }
 
-    // Storage Management
+    // Storage
     function loadEntries() {
       const data = localStorage.getItem(STORAGE_KEY);
       if (data) {
         try {
-          entries = JSON.parse(data);
+          const parsed = JSON.parse(data);
+          entries = Array.isArray(parsed) ? parsed.map(item => ({
+            ...item,
+            synced: typeof item.synced === 'boolean' ? item.synced : true,
+            syncError: item.syncError || null
+          })) : [];
+          sortEntries();
         } catch (e) {
           entries = [];
         }
-      } else {
-        // Pre-populate today's test record if empty
-        entries = [];
       }
     }
 
     function saveEntries() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-    }
-
-    function loadSettings() {
-      const data = localStorage.getItem(SETTINGS_KEY);
-      if (data) {
-        try {
-          config = JSON.parse(data);
-          document.getElementById('athleteId').value = config.athleteId;
-          document.getElementById('apiKey').value = config.apiKey;
-        } catch (e) {}
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      } catch (e) {
+        console.error('LocalStorage write failed:', e);
       }
-    }
-
-    function saveSettings() {
-      config.athleteId = document.getElementById('athleteId').value.trim();
-      config.apiKey = document.getElementById('apiKey').value.trim();
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(config));
-      showToast('Settings saved successfully!');
     }
 
     // Render History List
     function renderHistory() {
       const list = document.getElementById('historyList');
       const count = document.getElementById('historyCount');
-      count.innerText = `${entries.length} entries`;
+      count.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
 
       if (entries.length === 0) {
-        list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.9rem;">No measurements logged yet.<br>Step up to your Omron and log your first reading!</div>`;
+        list.innerHTML = `<div style="text-align:center; padding:28px 14px; color:var(--text-muted); font-size:0.88rem; line-height:1.5;">No measurements logged yet.<br>Enter your reading on the Log tab, or pull existing readings from Intervals.icu in Settings.</div>`;
         return;
       }
 
       list.innerHTML = entries.map((item, idx) => {
         const stage = getAHAStage(item.systolic, item.diastolic);
+        const syncBadge = item.synced
+          ? `<span class="sync-chip synced">✓ Synced</span>`
+          : `<button type="button" class="sync-chip pending" onclick="retrySingleEntry(${idx})" title="${escapeHtml(item.syncError || 'Tap to sync')}">↻ Sync</button>`;
+        const noteLine = item.notes
+          ? `<div class="history-note">"${escapeHtml(item.notes)}"</div>`
+          : '';
         return `
           <div class="history-card">
             <div class="history-main">
               <div class="history-reading">
                 <span>${item.systolic}/${item.diastolic}</span>
-                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">mmHg</span>
+                <span style="font-size:0.74rem; color:var(--text-muted); font-weight:normal;">mmHg</span>
                 ${item.pulse ? `<span class="history-pulse">♥ ${item.pulse}</span>` : ''}
-                <span class="stage-badge ${stage.class}" style="font-size:0.65rem; padding:2px 8px; margin-left:6px;">${stage.name}</span>
+                <span class="stage-badge ${stage.class}" style="font-size:0.64rem; padding:2px 8px;">${escapeHtml(stage.name)}</span>
               </div>
               <div class="history-meta">
-                <span>${item.date} at ${item.time}</span>
+                <span>${escapeHtml(item.date)} · ${escapeHtml(formatTimeLabel(item.time))}</span>
                 <span>•</span>
-                <span>MAP: <b>${item.map}</b></span>
-                ${item.notes ? `<span>•</span><span style="color:#e2e8f0; font-style:italic;">"${item.notes}"</span>` : ''}
+                <span>MAP <b>${item.map}</b></span>
+                ${syncBadge}
               </div>
+              ${noteLine}
             </div>
             <div class="history-actions">
-              <button class="icon-btn" onclick="startEdit(${idx})" title="Edit Entry">✎</button>
-              <button class="icon-btn delete" onclick="deleteEntry(${idx})" title="Delete Entry">✕</button>
+              <button type="button" class="icon-btn" onclick="startEdit(${idx})" title="Edit Entry" aria-label="Edit Entry">✎</button>
+              <button type="button" class="icon-btn delete" onclick="deleteEntry(${idx})" title="Delete Entry" aria-label="Delete Entry">✕</button>
             </div>
           </div>
         `;
@@ -1347,7 +2114,9 @@
 
     function startEdit(idx) {
       const item = entries[idx];
+      if (!item) return;
       editIndex = idx;
+      userEditedDateTime = true;
 
       document.getElementById('entryDate').value = item.date;
       document.getElementById('entryTime').value = item.time;
@@ -1356,121 +2125,151 @@
       document.getElementById('diastolic').value = item.diastolic;
       document.getElementById('pulse').value = item.pulse || '';
       document.getElementById('entryNotes').value = item.notes || '';
+      document.getElementById('formCardHeading').textContent = 'Edit Measurement';
+      document.getElementById('cancelEditBtn').style.display = 'flex';
+      setAutoNotice(true);
 
       updateLivePreview();
-      document.getElementById('saveBtn').innerHTML = `<span>Update & Re-Sync</span><span style="font-size:1.2rem;">✓</span>`;
-      switchTab('tab-log', document.querySelectorAll('.nav-item')[0]);
+      document.getElementById('saveBtn').innerHTML = '<span>Update &amp; Re-Sync</span><span style="font-size:1.15rem;">✓</span>';
+      switchTab('tab-log', document.querySelector('.nav-item[data-tab="tab-log"]'));
       document.getElementById('systolic').focus();
     }
 
+    function cancelEdit() {
+      editIndex = null;
+      document.getElementById('formCardHeading').textContent = 'New Measurement';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.getElementById('saveBtn').innerHTML = '<span>Save &amp; Sync to Intervals.icu</span><span style="font-size:1.15rem;">➔</span>';
+      document.getElementById('systolic').value = '';
+      document.getElementById('diastolic').value = '';
+      document.getElementById('pulse').value = '';
+      document.getElementById('entryNotes').value = '';
+      document.getElementById('livePreview').classList.remove('show');
+      showFormError('');
+      resetFormDateTime(false);
+    }
+
     function deleteEntry(idx) {
-      if (!confirm('Are you sure you want to delete this measurement?')) return;
+      if (!confirm('Delete this measurement from CardioBP?')) return;
       entries.splice(idx, 1);
+      if (editIndex === idx) cancelEdit();
       saveEntries();
       renderHistory();
       renderTrends();
+      updateSyncPill();
       showToast('Entry deleted');
     }
 
     // Render Trends & Cardiologist Summary
     function renderTrends() {
-      if (entries.length === 0) {
-        document.getElementById('avgBP').innerText = '--/--';
-        document.getElementById('avgMAP').innerText = '--';
-        document.getElementById('avgPP').innerText = '--';
+      const slice = entries.slice(0, 30);
+      const printBody = document.getElementById('printTableBody');
+
+      if (slice.length === 0) {
+        document.getElementById('avgBP').textContent = '--/--';
+        document.getElementById('avgMAP').textContent = '--';
+        document.getElementById('avgPP').textContent = '--';
+        ['Normal', 'Elevated', 'Stage1', 'Stage2'].forEach(k => {
+          document.getElementById(`dist${k}`).style.width = '0%';
+          document.getElementById(`pct${k}`).textContent = '0%';
+        });
+        renderChart([]);
+        if (printBody) printBody.innerHTML = '';
         return;
       }
 
-      // Filter to last 30 readings or all
-      const slice = entries.slice(0, 30);
-      const totalSys = slice.reduce((acc, cur) => acc + cur.systolic, 0);
-      const totalDia = slice.reduce((acc, cur) => acc + cur.diastolic, 0);
-      const totalMAP = slice.reduce((acc, cur) => acc + cur.map, 0);
-      const totalPP = slice.reduce((acc, cur) => acc + cur.pp, 0);
-
       const count = slice.length;
-      const avgSys = Math.round(totalSys / count);
-      const avgDia = Math.round(totalDia / count);
-      const avgMAP = Math.round(totalMAP / count);
-      const avgPP = Math.round(totalPP / count);
+      const avgSys = Math.round(slice.reduce((a, c) => a + c.systolic, 0) / count);
+      const avgDia = Math.round(slice.reduce((a, c) => a + c.diastolic, 0) / count);
+      const avgMAP = Math.round(slice.reduce((a, c) => a + c.map, 0) / count);
+      const avgPP = Math.round(slice.reduce((a, c) => a + c.pp, 0) / count);
 
-      document.getElementById('avgBP').innerText = `${avgSys}/${avgDia}`;
-      document.getElementById('avgMAP').innerText = `${avgMAP}`;
-      document.getElementById('avgPP').innerText = `${avgPP}`;
+      document.getElementById('avgBP').textContent = `${avgSys}/${avgDia}`;
+      document.getElementById('avgMAP').textContent = `${avgMAP}`;
+      document.getElementById('avgPP').textContent = `${avgPP}`;
 
-      // Calculate AHA stage distribution
       let normal = 0, elevated = 0, s1 = 0, s2 = 0;
       slice.forEach(e => {
-        const stage = getAHAStage(e.systolic, e.diastolic).class;
-        if (stage === 'normal') normal++;
-        else if (stage === 'elevated') elevated++;
-        else if (stage === 'stage1') s1++;
+        const cls = getAHAStage(e.systolic, e.diastolic).class;
+        if (cls === 'normal') normal++;
+        else if (cls === 'elevated') elevated++;
+        else if (cls === 'stage1') s1++;
         else s2++;
       });
 
-      const pNorm = Math.round((normal / count) * 100);
-      const pElev = Math.round((elevated / count) * 100);
-      const pS1 = Math.round((s1 / count) * 100);
-      const pS2 = Math.round((s2 / count) * 100);
+      const pctNorm = (normal / count) * 100;
+      const pctElev = (elevated / count) * 100;
+      const pctS1 = (s1 / count) * 100;
+      const pctS2 = (s2 / count) * 100;
 
-      document.getElementById('distNormal').style.width = `${pNorm}%`;
-      document.getElementById('distElevated').style.width = `${pElev}%`;
-      document.getElementById('distStage1').style.width = `${pS1}%`;
-      document.getElementById('distStage2').style.width = `${pS2}%`;
+      document.getElementById('distNormal').style.width = `${pctNorm.toFixed(2)}%`;
+      document.getElementById('distElevated').style.width = `${pctElev.toFixed(2)}%`;
+      document.getElementById('distStage1').style.width = `${pctS1.toFixed(2)}%`;
+      document.getElementById('distStage2').style.width = `${pctS2.toFixed(2)}%`;
 
-      document.getElementById('pctNormal').innerText = `${pNorm}%`;
-      document.getElementById('pctElevated').innerText = `${pElev}%`;
-      document.getElementById('pctStage1').innerText = `${pS1}%`;
-      document.getElementById('pctStage2').innerText = `${pS2}%`;
+      document.getElementById('pctNormal').textContent = `${Math.round(pctNorm)}%`;
+      document.getElementById('pctElevated').textContent = `${Math.round(pctElev)}%`;
+      document.getElementById('pctStage1').textContent = `${Math.round(pctS1)}%`;
+      document.getElementById('pctStage2').textContent = `${Math.round(pctS2)}%`;
 
-      // Render SVG Chart
       renderChart(slice);
+
+      if (printBody) {
+        printBody.innerHTML = slice.map(e => `
+          <tr>
+            <td>${escapeHtml(e.date)}</td>
+            <td>${escapeHtml(formatTimeLabel(e.time))}</td>
+            <td>${e.systolic}/${e.diastolic}</td>
+            <td>${e.pulse || '—'}</td>
+            <td>${e.map}</td>
+            <td>${escapeHtml(e.stage)}</td>
+            <td>${escapeHtml(e.notes || '')}</td>
+          </tr>
+        `).join('');
+      }
     }
 
     function renderChart(data) {
       const svg = document.getElementById('trendSvg');
       if (data.length < 2) {
-        svg.innerHTML = `<text x="250" y="100" fill="#64748b" text-anchor="middle" font-size="13">Log at least 2 readings to see trend curve</text>`;
+        svg.innerHTML = `<text x="250" y="108" fill="#64748b" text-anchor="middle" font-size="13">Log at least 2 readings to see your trend curve</text>`;
         return;
       }
 
-      // Display in chronological order
-      const chron = [...data].reverse().slice(-14);
-      const W = 500, H = 200, padX = 40, padY = 25;
-      const minVal = 50, maxVal = 170;
+      const chron = [...data].slice(0, 14).reverse();
+      const W = 500, H = 210, padL = 42, padR = 24, padT = 24, padB = 28;
 
-      const getY = (val) => H - padY - ((val - minVal) / (maxVal - minVal)) * (H - 2 * padY);
-      const getX = (i) => padX + (i / (chron.length - 1)) * (W - 2 * padX);
+      const allVals = chron.flatMap(d => [d.systolic, d.diastolic]);
+      const minVal = Math.min(50, Math.floor((Math.min(...allVals) - 10) / 10) * 10);
+      const maxVal = Math.max(160, Math.ceil((Math.max(...allVals) + 12) / 10) * 10);
 
-      // Normal reference zones
+      const getY = (val) => H - padB - ((val - minVal) / (maxVal - minVal)) * (H - padT - padB);
+      const getX = (i) => padL + (i / (chron.length - 1)) * (W - padL - padR);
+
       const y120 = getY(120);
       const y80 = getY(80);
-
-      let sysPoints = chron.map((d, i) => `${getX(i)},${getY(d.systolic)}`).join(' ');
-      let diaPoints = chron.map((d, i) => `${getX(i)},${getY(d.diastolic)}`).join(' ');
+      const sysPoints = chron.map((d, i) => `${getX(i).toFixed(1)},${getY(d.systolic).toFixed(1)}`).join(' ');
+      const diaPoints = chron.map((d, i) => `${getX(i).toFixed(1)},${getY(d.diastolic).toFixed(1)}`).join(' ');
 
       let svgHTML = `
-        <!-- Reference Guide Lines -->
-        <line x1="${padX}" y1="${y120}" x2="${W - padX}" y2="${y120}" stroke="#334155" stroke-dasharray="4" />
-        <text x="${padX - 8}" y="${y120 + 4}" fill="#64748b" font-size="10" text-anchor="end">120</text>
-
-        <line x1="${padX}" y1="${y80}" x2="${W - padX}" y2="${y80}" stroke="#334155" stroke-dasharray="4" />
-        <text x="${padX - 8}" y="${y80 + 4}" fill="#64748b" font-size="10" text-anchor="end">80</text>
-
-        <!-- Lines -->
-        <polyline fill="none" stroke="#38bdf8" stroke-width="3" points="${sysPoints}" />
-        <polyline fill="none" stroke="#f43f5e" stroke-width="3" points="${diaPoints}" />
+        <line x1="${padL}" y1="${y120.toFixed(1)}" x2="${W - padR}" y2="${y120.toFixed(1)}" stroke="#334155" stroke-dasharray="4" />
+        <text x="${padL - 8}" y="${(y120 + 4).toFixed(1)}" fill="#64748b" font-size="10" text-anchor="end">120</text>
+        <line x1="${padL}" y1="${y80.toFixed(1)}" x2="${W - padR}" y2="${y80.toFixed(1)}" stroke="#334155" stroke-dasharray="4" />
+        <text x="${padL - 8}" y="${(y80 + 4).toFixed(1)}" fill="#64748b" font-size="10" text-anchor="end">80</text>
+        <polyline fill="none" stroke="#38bdf8" stroke-width="2.8" stroke-linejoin="round" points="${sysPoints}" />
+        <polyline fill="none" stroke="#f43f5e" stroke-width="2.8" stroke-linejoin="round" points="${diaPoints}" />
       `;
 
-      // Dots and tooltips
       chron.forEach((d, i) => {
         const cx = getX(i);
         const cySys = getY(d.systolic);
         const cyDia = getY(d.diastolic);
         svgHTML += `
-          <circle cx="${cx}" cy="${cySys}" r="4" fill="#38bdf8" />
-          <circle cx="${cx}" cy="${cyDia}" r="4" fill="#f43f5e" />
-          <text x="${cx}" y="${H - 6}" fill="#64748b" font-size="9" text-anchor="middle">${d.date.slice(5)}</text>
+          <circle cx="${cx.toFixed(1)}" cy="${cySys.toFixed(1)}" r="4" fill="#38bdf8" />
+          <text x="${cx.toFixed(1)}" y="${(cySys - 8).toFixed(1)}" fill="#bae6fd" font-size="9" text-anchor="middle">${d.systolic}</text>
+          <circle cx="${cx.toFixed(1)}" cy="${cyDia.toFixed(1)}" r="4" fill="#f43f5e" />
+          <text x="${cx.toFixed(1)}" y="${(cyDia + 13).toFixed(1)}" fill="#fda4af" font-size="9" text-anchor="middle">${d.diastolic}</text>
+          <text x="${cx.toFixed(1)}" y="${H - 7}" fill="#64748b" font-size="9" text-anchor="middle">${escapeHtml((d.date || '').slice(5))}</text>
         `;
       });
 
@@ -1482,29 +2281,64 @@
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
-      document.getElementById(tabId).classList.add('active');
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
       if (el) el.classList.add('active');
+      updateSyncPill();
 
       if (tabId === 'tab-log') {
-        if (editIndex === null) {
+        if (editIndex === null && !userEditedDateTime) {
           const sys = document.getElementById('systolic');
           const dia = document.getElementById('diastolic');
           if ((!sys || !sys.value) && (!dia || !dia.value)) {
-            resetFormDateTime();
+            resetFormDateTime(false);
           }
         }
-        setTimeout(() => {
-          document.getElementById('systolic').focus();
-        }, 100);
       } else if (tabId === 'tab-trends') {
         renderTrends();
+      } else if (tabId === 'tab-history') {
+        renderHistory();
       }
     }
 
-    // CSV Export & Import
+    // RFC-4180 CSV Export & Import
+    function csvCell(val) {
+      const s = String(val == null ? '' : val);
+      if (/[",\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    }
+
+    function parseCsvLine(line) {
+      const out = [];
+      let cur = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (inQuotes) {
+          if (ch === '"' && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else if (ch === '"') {
+            inQuotes = false;
+          } else {
+            cur += ch;
+          }
+        } else if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ',') {
+          out.push(cur);
+          cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      out.push(cur);
+      return out.map(c => c.trim());
+    }
+
     function exportToCSV() {
       if (entries.length === 0) {
-        alert('No readings to export.');
+        showToast('No readings to export yet', 'warn');
         return;
       }
 
@@ -1517,85 +2351,147 @@
         e.pulse || '',
         e.map,
         e.pp,
-        `"${e.stage}"`,
-        `"${e.notes || ''}"`
-      ]);
+        e.stage,
+        e.notes || ''
+      ].map(csvCell));
 
       const csvText = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
       const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
-      const filename = `CardioBP_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = `CardioBP_Export_${formatLocalDate(new Date())}.csv`;
 
-      if (window.navigator && window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, filename);
-      } else {
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }
-      showToast('CSV downloaded to device');
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('CSV downloaded');
     }
 
     function importFromCSV(e) {
-      const file = e.target.files[0];
+      const file = e.target.files && e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result;
-        const lines = text.split('\n').filter(l => l.trim().length > 0);
+      reader.onload = function (evt) {
+        const text = String(evt.target.result || '');
+        const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+        const seen = new Set(entries.map(x => `${x.date}|${x.time}|${x.systolic}|${x.diastolic}`));
         let importedCount = 0;
 
         lines.slice(1).forEach(line => {
-          const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+          const cols = parseCsvLine(line);
           if (cols.length >= 4) {
             const date = cols[0];
             const time = cols[1] || '08:00';
-            const sys = parseInt(cols[2]);
-            const dia = parseInt(cols[3]);
-            const pulse = cols[4] ? parseInt(cols[4]) : null;
+            const sys = parseInt(cols[2], 10);
+            const dia = parseInt(cols[3], 10);
+            const pulse = cols[4] ? parseInt(cols[4], 10) : null;
+            const key = `${date}|${time}|${sys}|${dia}`;
 
-            if (!isNaN(sys) && !isNaN(dia)) {
+            if (!isNaN(sys) && !isNaN(dia) && !seen.has(key)) {
               entries.push({
                 id: Date.now() + Math.random(),
                 date,
                 time,
                 systolic: sys,
                 diastolic: dia,
-                pulse: pulse,
+                pulse: isNaN(pulse) ? null : pulse,
                 map: Math.round((2 * dia + sys) / 3),
                 pp: sys - dia,
                 stage: getAHAStage(sys, dia).name,
-                notes: cols[8] || 'Imported'
+                notes: cols[8] || '',
+                synced: true,
+                syncError: null
               });
+              seen.add(key);
               importedCount++;
             }
           }
         });
 
-        // Sort descending by date
-        entries.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+        sortEntries();
         saveEntries();
         renderHistory();
         renderTrends();
-        showToast(`Imported ${importedCount} readings`);
+        updateSyncPill();
+        showToast(`Imported ${importedCount} reading${importedCount === 1 ? '' : 's'}`);
+        e.target.value = '';
       };
       reader.readAsText(file);
     }
 
-    function showToast(msg) {
+    function showToast(msg, kind) {
       const toast = document.getElementById('toast');
-      document.getElementById('toastMsg').innerText = msg;
-      toast.classList.add('show');
-      setTimeout(() => {
+      document.getElementById('toastMsg').textContent = msg;
+      toast.className = `toast show${kind ? ' ' + kind : ''}`;
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
         toast.classList.remove('show');
-      }, 2500);
+      }, 3200);
     }
+
+    // Initialization
+    function init() {
+      resetFormDateTime(false);
+      loadSettings();
+      loadEntries();
+      setupInputs();
+      renderHistory();
+      renderTrends();
+      updateSyncPill();
+
+      // Auto-retry pending syncs quietly on startup if online
+      if (config.apiKey && navigator.onLine && entries.some(e => e.synced === false)) {
+        retryPendingSyncs(false);
+      }
+
+      // Keep auto-set clock fresh while form is idle & unedited
+      setInterval(() => {
+        if (editIndex === null && !userEditedDateTime && document.visibilityState === 'visible') {
+          const sys = document.getElementById('systolic');
+          const dia = document.getElementById('diastolic');
+          if ((!sys || !sys.value) && (!dia || !dia.value)) {
+            resetFormDateTime(false);
+          }
+        }
+      }, 30000);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    window.addEventListener('pageshow', () => {
+      if (editIndex === null && !userEditedDateTime) {
+        resetFormDateTime(false);
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && editIndex === null && !userEditedDateTime) {
+        const sys = document.getElementById('systolic');
+        const dia = document.getElementById('diastolic');
+        if ((!sys || !sys.value) && (!dia || !dia.value)) {
+          resetFormDateTime(false);
+        }
+      }
+    });
+
+    window.addEventListener('online', () => {
+      updateSyncPill();
+      if (config.apiKey && entries.some(e => e.synced === false)) {
+        retryPendingSyncs(true);
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      updateSyncPill();
+    });
   </script>
 </body>
 </html>
